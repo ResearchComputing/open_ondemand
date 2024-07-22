@@ -1,0 +1,18 @@
+<%-
+#  cpus = bih_cpus.to_i
+  mem = bih_mem.to_i
+-%>
+---
+batch_connect:
+  template: "basic"
+script:
+  native:
+    - "-n<%= bih_cpus %>"
+    - "--mem"
+    - "<%= mem * 1024 %>"
+    - "--partition"
+    - "<%= bih_partition %>"
+    - "--account=<%= bc_account %>"
+    - "-N1"
+    - "-t<%= bc_num_hours %>:00:00"
+    - "-q<%= qos_name %>"

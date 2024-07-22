@@ -1,0 +1,102 @@
+#!/usr/bin/env bash
+
+# kill off old db since changing versions will not work otherwise
+rm -f /projects/$USER/.rstudioserver/var-lib-rstudio-server/rstudio-os.sqlite
+
+set -x
+
+<%-
+working_dir_host = '${PWD}'
+working_dir_container = working_dir_host
+%>
+
+#
+# Start RStudio Server
+#
+#export USERNAME=$USER
+
+# PAM auth helper used by RStudio
+#export RSTUDIO_AUTH=$(readlink -f "<%= working_dir_container %>/bin/auth")
+#echo $RSTUDIO_AUTH
+
+source "<%= working_dir_container %>/.env"
+
+<% if context.r_provider == "miniconda" %>
+source <%= context.miniconda_path.split(":")[0] %>/activate
+<% if context.miniconda_path.include? ":" %>
+conda activate <%= context.miniconda_path.split(":")[1] %>
+<% end %>
+export RSTUDIO_WHICH_R=$(which R)
+<% end %>
+
+# Generate an `rsession` wrapper script
+export RSESSION_WRAPPER_FILE="<%= working_dir_container %>/rsession.sh"
+(
+umask 077
+sed 's/^ \{2\}//' > "<%= working_dir_host %>/rsession.sh" << EOL
+  #!/usr/bin/env bash 
+
+  set -x
+
+  for x in /opt/R/*; do
+    export LD_LIBRARY_PATH=\$x/lib/R/lib:\$LD_LIBRARY_PATH
+  done
+  export LD_LIBRARY_PATH=/usr/lib64/:\$LD_LIBRARY_PATH
+
+  # Log all output from this script
+  export RSESSION_LOG_FILE="<%= working_dir_container %>/rsession.log"
+
+  exec &>>"\${RSESSION_LOG_FILE}"
+
+  # Launch the original command
+  echo "Launching rsession..."
+  set -x
+  exec rsession $(if [[ ! -z "${R_LIBS_USER}" ]]; then echo --r-libs-user "${R_LIBS_USER}"; fi) "\${@}"
+EOL
+)
+chmod 700 "<%= working_dir_host %>/rsession.sh"
+
+# Set working directory to home directory
+cd "${HOME}"
+
+# Output debug info
+hostname
+
+set -x
+# Launch the RStudio Server
+echo "Starting up rserver..."
+
+# Dump environment without functions for use in rsession.sh, filtering readonly variables
+(set -o posix; set) | grep -vP '^(BASHOPTS|BASH_VERSINFO|EUID|PPID|SHELLOPTS|UID)' > "<%= working_dir_container %>/.env"
+
+SERVER_DATA_DIR=$(TMPDIR=/projects/$USER/.rstudioserver)
+mkdir -p ${SERVER_DATA_DIR}/var/{lib,run}
+chmod a+rw ${SERVER_DATA_DIR}/var/run
+chmod +t ${SERVER_DATA_DIR}/var/run
+
+# create an Rstudio directory that will be a symlink (contains all Rstudio configurations e.g. console history)
+mkdir /projects/$USER/.rstudioserver/rstudio
+# link created directory to path created by launching Rstudio
+ln -s /projects/$USER/.rstudioserver/rstudio /home/$USER/.local/share/rstudio
+
+CLUSTER_USER=$(echo $USER | sed -e 's/@CHARITE/_c/' -e 's/@MDC-BERLIN/_m/')
+
+# path to rserver binary in the container
+export RSERVER=/usr/lib/rstudio-server/bin/rserver
+
+# make sure run and rstudio var lib directories are created
+mkdir -p /projects/$USER/.rstudioserver/run /projects/$USER/.rstudioserver/var-lib-rstudio-server
+
+# create a rstudioserver database.conf file
+printf 'provider=sqlite\ndirectory=/var/lib/rstudio-server\n' > /projects/$USER/.rstudioserver/database.conf
+
+echo $CLUSTER_NAME
+
+# all singularity binds for the container 
+if [[ "${CLUSTER_NAME}" == "blanca" ]]; then
+	BINDS=/pl/active,/projects/$USER,/rc_scratch/$USER,/projects/$USER/.rstudioserver/run:/run,/projects/$USER/.rstudioserver/var-lib-rstudio-server:/var/lib/rstudio-server,/projects/$USER/.rstudioserver/database.conf:/etc/rstudio/database.conf,/curc/sw/containers/open_ondemand,/curc/sw/anaconda3,/curc/sw/anaconda,/curc/sw/anaconda2,/curc/sw/mambaforge-pypy3
+	singularity exec --bind $BINDS $RSTUDIO_SERVER_IMAGE $RSERVER --www-port="${port}" --auth-none=1 --server-user=$USER
+else
+	BINDS=/projects/$USER,/pl/active,/scratch/alpine/$USER,/projects/$USER/.rstudioserver/run:/run,/projects/$USER/.rstudioserver/var-lib-rstudio-server:/var/lib/rstudio-server,/projects/$USER/.rstudioserver/database.conf:/etc/rstudio/database.conf,/curc/sw/containers/open_ondemand,/curc/sw/anaconda3,/curc/sw/anaconda,/curc/sw/anaconda2,/curc/sw/mambaforge-pypy3
+	apptainer exec --bind $BINDS --userns --overlay $APPTAINER_OVERLAY:ro $RSTUDIO_SERVER_IMAGE $RSERVER --www-port="${port}" --auth-none=1 --server-user=$USER
+fi

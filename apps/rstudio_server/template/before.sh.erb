@@ -1,0 +1,53 @@
+set -x
+
+export CLUSTER_NAME=<%= context.cluster %>
+
+# Find available port to run server on
+port=$(find_port ${host})
+
+mkdir /projects/$USER/.rstudioserver
+
+# Create singularity or apptainer as symlink so we can use them
+if [[ $CLUSTER_NAME == "blanca" ]]; then
+	if [[ ! -e ~/.singularity ]]; then
+    		mkdir -p ~/work/.singularity
+    		ln -sr ~/work/.singularity ~/.singularity
+	fi
+	export SINGULARITY_TMPDIR=/projects/$USER/.rstudioserver
+        export SINGULARITY_CACHEDIR=/projects/$USER/.rstudioserver
+	module load singularity
+
+else 
+	if [[ ! -e ~/.apptainer ]]; then
+    		mkdir -p ~/work/..apptainer
+    		ln -sr ~/work/.apptainer ~/.apptainer
+	fi
+
+	export APPTAINER_TMPDIR=/projects/$USER/.rstudioserver
+	export APPTAINER_CACHEDIR=/projects/$USER/.rstudioserver
+
+	export RSTUDIO_SERVER_IMAGE=/curc/sw/containers/open_ondemand/<%= context.singularity_image %>
+
+	# create overlay if it doesn't exist and add it to the user's projects directory
+	if ! test -f "/projects/$USER/.rstudioserver/rstudio-server-4.2.2_overlay.img"; then
+
+   		cd /projects/$USER/.rstudioserver
+   		apptainer overlay create --fakeroot --sparse --size 100000 rstudio-server-4.2.2_overlay.img
+
+	fi
+
+	export APPTAINER_OVERLAY=/projects/$USER/.rstudioserver/rstudio-server-4.2.2_overlay.img
+
+fi
+
+export RSTUDIO_SERVER_IMAGE=/curc/sw/containers/open_ondemand/<%= context.singularity_image %>
+
+# Define a password and export it for RStudio authentication
+#password="$(create_passwd 16)"
+#export RSTUDIO_PASSWORD="${password}"
+
+<%-
+  require 'securerandom'
+  csrftoken = SecureRandom.uuid
+-%>
+export csrf_token="<%= csrftoken %>"
