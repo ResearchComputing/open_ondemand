@@ -1,0 +1,39 @@
+---
+attributes:
+#  desktop: mate
+  bc_vnc_resolution:
+    required: true
+#    widget: resolution_field
+#    label: "Desktop Screen Resolution (px)"
+#    value: "1536x900"
+  version: R2021b
+#    widget: select
+#    label: "MATLAB version"
+#    options:
+#      - [ "R2021b", "matlab/R2021b" ]
+#      - [ "R2020b", "matlab/R2020b" ]
+#      - [ "R2019b", "matlab/R2019b" ]
+#      - [ "R2018b", "matlab/R2018b" ]
+#      - [ "R2017b", "matlab/R2017b" ]
+#      - [ "R2016b", "matlab/R2016b" ]  
+  configuration:
+     widget: select
+     options:
+       - ["2 cores, 1 hour, K80 GPU", "2x1k80"]
+       - ["2 cores, 1 hour, RTX8000 GPU", "2x1rtx"]
+       - ["2 cores, 12 hours, K80 GPU", "2x12k80"]
+       - ["2 cores, 12 hours, RTX8000 GPU", "2x12rtx"]
+       - ["4 cores, 4 hours, K80 GPU", "4x4k80"]
+       - ["4 cores, 4 hours, RTX8000 GPU", "4x4rtx"]
+#  bc_queue:
+#    value: ahub
+form:
+  - version
+#  - num_cores
+#  - bc_num_hours
+#  - memtask
+#  - bc_account
+#  - bc_queue
+  - bc_vnc_resolution
+  - configuration
+#  - bc_email_on_started

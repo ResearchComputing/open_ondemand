@@ -1,0 +1,36 @@
+<%-
+
+  base_slurm_args = ["--nodes", "1"]
+
+  slurm_args = case configuration
+              when "2x1k80"
+                base_slurm_args += ["--ntasks", "2", "--time", "01:00:00", "--partition", "core-gpu", "--qos", "interactive", "--mem-per-cpu=8G"]
+              when "2x1rtx"
+                base_slurm_args += ["--ntasks", "2", "--time", "01:00:00", "--partition", "viz", "--qos", "interactive", "--mem-per-cpu=16G"]
+              when "2x12k80"
+                base_slurm_args += ["--ntasks", "2", "--time", "12:00:00", "--partition", "core-gpu", "--qos", "interactive", "--mem-per-cpu=8G"]
+              when "2x12rtx"
+                base_slurm_args += ["--ntasks", "2", "--time", "12:00:00", "--partition", "viz", "--qos", "interactive", "--mem-per-cpu=16G"]
+              when "4x4k80"
+                base_slurm_args += ["--ntasks", "4", "--time", "04:00:00", "--partition", "core-gpu", "--qos", "interactive", "--mem-per-cpu=8G"]
+              when "4x4rtx"
+                base_slurm_args += ["--ntasks", "4", "--time", "04:00:00", "--partition", "viz", "--qos", "interactive", "--mem-per-cpu=16G"]
+              else
+                base_slurm_args
+              end
+-%>
+
+---
+<% if configuration =~ /^(2x1k80|2x1rtx|2x12k80|2x12rtx|4x4k80|4x4rtx)$/ -%>
+cluster: "core"
+<% end -%>
+
+batch_connect:
+  template: vnc
+  set_host: "host=$(hostname)"
+script:
+  native:
+  <%- slurm_args.each do |arg| %>
+    - "<%= arg %>"
+  <% end -%>
+
