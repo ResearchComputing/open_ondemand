@@ -1,0 +1,14 @@
+---
+name: VS Code-Server (Custom)
+category: Interactive Apps
+subcategory: Servers
+role: batch_connect
+description: |
+  This app will launch a [VS Code] server using [Code-Server]. <mark style="background-color: #FFF36D"> For more 
+  information on possible settings for this application, see 
+  [Running Custom Interactive applications](https://curc.readthedocs.io/en/latest/gateways/OnDemand.html#running-custom-interactive-applications) 
+  in our documentation. Additionally, for more information on installing VS Code extensions, please see our 
+  [Installing VS Code-Server Extensions](https://curc.readthedocs.io/en/latest/gateways/OnDemand.html#installing-vs-code-server-extensions) section of the documentation. </mark>
+
+  [VS Code]: https://code.visualstudio.com/
+  [Code-Server]: https://coder.com/docs/code-server/latest

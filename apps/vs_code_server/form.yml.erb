@@ -1,0 +1,48 @@
+---
+attributes:
+  cluster:
+    value: alpine
+    widget: select
+    help: |
+#      Only CU Boulder Users can use Alpine at this time.
+    options:
+      - ["Alpine", "alpine"]
+      - ["Blanca", "blanca"]
+  version:
+    widget: "select"
+    label: "Code-Server version"
+    options:
+      - ["4.16.1", "4.16.1"]
+      - ["4.14.1", "4.14.1"]
+  num_cores:
+    widget: "number_field"
+    label: "Number of cores"
+    value: 1
+    min: 1
+    max: 64
+    step: 1
+    id: 'num_cores'
+  bc_account:
+    widget: text_field
+    value: "ucb-general"
+  bc_queue:
+    value: ahub
+    label: Partition
+  bc_num_hours:
+    widget: "number_field"
+    label: "Time"
+    value: 4
+    min: 1
+    max: 24
+  qos_name:
+    widget: text_field
+    label: QoS Name
+    value: "interactive"
+form:
+  - cluster
+  - version
+  - bc_account
+  - bc_queue
+  - qos_name
+  - bc_num_hours
+  - num_cores

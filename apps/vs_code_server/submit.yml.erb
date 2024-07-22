@@ -1,0 +1,23 @@
+<%-
+    slurm_args = ["--cpus-per-task", num_cores.blank? ? "1" : num_cores,
+                  "--time", bc_num_hours + ":0:0",
+                  "--account", bc_account, "--partition", bc_queue,
+                  "--qos", qos_name]
+
+    if bc_queue =~ /^(atesting_a100|atesting_mi100)$/
+       slurm_args += ["--gres", "gpu:1"]
+    end
+-%>
+
+---
+
+batch_connect:
+  template: "basic"
+#  conn_params:
+#    - code_server_version
+script:
+  native:
+  <%- slurm_args.each do |arg| %>
+    - "<%= arg %>"
+  <% end -%>
+
