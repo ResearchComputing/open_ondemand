@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+
+export XDG_RUNTIME_DIR="/tmp/${UID}"
+
+# Benchmark info
+echo "TIMING - Starting main script at: $(date)"
+
+# Set working directory to home directory
+cd "${HOME}"
+
+#
+# Start Jupyter Notebook Server
+#
+
+# Purge the module environment to avoid conflicts
+module purge
+
+# Load the require modules
+module load <%= context.anaconda_version %>
+
+# List loaded modules
+module list
+
+# activate provided conda environment 
+conda activate <%= context.conda_env %>
+
+# obtain the path to the conda environment 
+path_to_conda=$CONDA_PREFIX
+
+# do a module purge (necessary because the terminal app in Jupyter behaves strangely)
+module purge
+
+# add the Path to the conda environment, so it can be used 
+export PATH=$PATH:"$path_to_conda"/bin
+
+# Benchmark info
+echo "TIMING - Starting jupyter at: $(date)"
+
+# Launch the Jupyter Notebook Server
+set -x
+jupyter <%= context.jupyterlab_switch == "1" ? "lab" : "notebook" %> --config="${CONFIG_FILE}"

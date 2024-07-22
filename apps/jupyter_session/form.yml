@@ -1,0 +1,72 @@
+
+---
+
+# Define attribute values that aren't meant to be modified by the user within
+# the Dashboard form
+attributes:
+
+# All of the attributes that make up the Dashboard form (in respective order),
+# and made available to the submit configuration file and the template ERB
+# files
+#
+# @note You typically do not need to modify this unless you want to add a new
+#   configurable value
+# @note If an attribute listed below is hard-coded above in the `attributes`
+#   option, then it will not appear in the form page that the user sees in the
+#   Dashboard
+  cluster:
+    value: alpine
+    widget: select
+    options:
+      - ["Alpine", "alpine"]
+      - ["Blanca", "blanca"]
+  anaconda_version:
+    widget: select
+    label: Anaconda Version
+    options:
+       - ["2020.11", "anaconda/2020.11"]
+       - ["2022.10", "anaconda/2022.10"]
+  conda_env:
+    widget: text_field
+    label: Conda environment
+    value: "base"
+    help: |
+      Important: Please check your spelling, if the provided environment is not found it will default to the environment "base". For more information on creating a compatible Conda environment, please see [Creating a Jupyter Session Conda Environment](https://curc.readthedocs.io/en/latest/gateways/OnDemand.html#creating-a-jupyter-session-conda-environment).
+  jupyterlab_switch:
+    widget: "check_box"
+    value: 1
+    label: Use JupyterLab instead of Jupyter Notebook?
+  num_cores:
+    widget: "number_field"
+    label: "Number of cores"
+    value: 1
+    min: 1
+    max: 64
+    step: 1
+    id: 'num_cores'
+  bc_account:
+    widget: text_field
+    value: "rmacc-general"
+  bc_queue:
+    value: ahub
+    label: Partition
+  bc_num_hours:
+    widget: "number_field"
+    label: "Time"
+    value: 4
+    min: 1
+    max: 24
+  qos_name:
+    widget: text_field
+    label: QoS Name
+    value: "normal"
+form:
+  - cluster
+  - anaconda_version
+  - conda_env
+  - bc_account
+  - bc_queue
+  - bc_num_hours
+  - num_cores
+  - qos_name
+  - jupyterlab_switch
