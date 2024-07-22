@@ -1,0 +1,13 @@
+cspell.json 
+
+# DS store created on a mac
+.DS_Store
+._.DS_Store
+**.DS_Store
+**/._.DS_Store
+
+# Ignore vim files:
+*~
+*.swp
+*.swo
+
