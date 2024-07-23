@@ -1,5 +1,5 @@
 ---
-name: Jupyter Session (Custom)
+name: Jupyter Session
 category: Interactive Apps
 subcategory: Servers
 role: batch_connect

@@ -1,43 +1,60 @@
 <%-
-    slurm_args = ["--cpus-per-task", num_cores.blank? ? "1" : num_cores, 
-                  "--time", bc_num_hours + ":0:0",
-                  "--account", bc_account, "--partition", bc_queue,
-                  "--qos", qos_name]
 
-    if bc_queue =~ /^(atesting_a100|atesting_mi100)$/
-       slurm_args += ["--gres", "gpu:1"]
-    end 
+  # Initialize an empty array to hold Slurm arguments
+  base_slurm_args = []
+
+  # fill Slurm array based on config_type
+  if config_type == "presets"
+
+    # set shared Slurm directives 
+    base_slurm_args += ["--nodes=1", "--partition=ahub", "--qos=interactive", "--reservation=ahub2"]
+
+    case preset_configuration
+      # set tasks and time based on provided selection 
+      when "1x12alpine"
+        base_slurm_args += ["--ntasks=1", "--time=12:00:00"]
+      when "4x4alpine"
+        base_slurm_args += ["--ntasks=4", "--time=4:00:00"]
+      else
+	base_slurm_args
+      end
+
+  end
+
 -%>
-
-# Job submission configuration file
-#
 ---
 
-##
-# Configure the content of the job script for the batch job here
-# @see http://www.rubydoc.info/gems/ood_core/OodCore/BatchConnect/Template
-#
-batch_connect:
-  # We use the basic web server template for generating the job script
-  #
-  # @note Do not change this unless you know what you are doing!
-  template: "basic"
+<% if config_type == "presets" -%>
 
-  # You can override the command used to query the hostname of the compute node
-  # here
-  #
-  # @note It is **highly** recommended this be set in the global cluster
-  #   configuration file so that all apps can take advantage of it by default
-  #
-  #set_host: "host=$(hostname -A | awk '{print $2}')"
-
-#
-# Configure the job script submission parameters for the batch job here
-# @see http://www.rubydoc.info/gems/ood_core/OodCore/Job/Script
-#
+# if presets set cluster to Alpine and use base_slurm_args to set Slurm directives 
+cluster: "alpine"
 script:
   copy_environment: true
   native:
-  <%- slurm_args.each do |arg| %>
-    - "<%= arg %>"
-  <% end -%>
+    <% base_slurm_args.each do |arg| %>
+      - <%= arg %>
+    <% end %>
+
+<% else -%>
+
+# set Slurm directives based on provided custom configurations 
+script:
+  copy_environment: true
+  native:
+    - "--nodes=1"
+    - "--ntasks=<%= num_cores %>"
+    - "--account=<%= account %>"
+    - "--partition=<%= partition_name %>"
+    - "--qos=<%= qos_name %>"
+    - "--time=<%= num_hours %>:00:00"
+    <% if reservation.downcase != "none" %>
+    - "--reservation=<%= reservation %>"
+    <% end %>
+    <% if gres.downcase != "none" %>
+    - "--gres=<%= gres %>"
+    <% end %>
+
+<% end -%>
+
+batch_connect:
+  template: "basic"

@@ -1,5 +1,5 @@
 form:
-  - version
+  - apptainer_image
   - config_type
   - preset_configuration
   - cluster
@@ -18,12 +18,11 @@ attributes:
      options:
        - ["1 core, 12 hours", "1x12alpine"]
        - ["4 cores, 4 hours", "4x4alpine"]
-  version:
+  apptainer_image:
      widget: "select"
-     label: "Code-Server version"
+     label: "RStudio Version"
      options:
-       - ["4.16.1", "4.16.1"]
-       - ["4.14.1", "4.14.1"]
+       - [ "Rstudio 2023.03.0, R 4.2.2", "rstudio-server-4.2.2.sif"]
   cluster:
      widget: select
      options:
