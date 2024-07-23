@@ -1,5 +1,7 @@
 form:
-  - version
+  - anaconda_version
+  - conda_env
+  - jupyterlab_switch
   - config_type
   - preset_configuration
   - cluster
@@ -18,12 +20,22 @@ attributes:
      options:
        - ["1 core, 12 hours", "1x12alpine"]
        - ["4 cores, 4 hours", "4x4alpine"]
-  version:
-     widget: "select"
-     label: "Code-Server version"
+  anaconda_version:
+     widget: select
+     label: Anaconda Version
      options:
-       - ["4.16.1", "4.16.1"]
-       - ["4.14.1", "4.14.1"]
+       - ["2020.11", "anaconda/2020.11"]
+       - ["2022.10", "anaconda/2022.10"]
+  conda_env:
+     widget: text_field
+     label: Conda environment
+     value: "base"
+     help: |
+       Important: Please check your spelling, if the provided environment is not found it will default to the environment "base". For more information on creating a compatible Conda environment, please see [Creating a Jupyter Session Conda Environment](https://curc.readthedocs.io/en/latest/gateways/OnDemand.html#creating-a-jupyter-session-conda-environment).
+  jupyterlab_switch:
+     widget: "check_box"
+     value: 1
+     label: Use JupyterLab instead of Jupyter Notebook?
   cluster:
      widget: select
      options:

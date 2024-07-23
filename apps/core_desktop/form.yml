@@ -5,10 +5,8 @@ attributes:
   bc_vnc_resolution:
     required: true
   node_type: null
-#
   configuration:
      widget: select
-#     help: This app is still under development and should not be used at this time.
      options:
        - ["2 cores, 1 hour, K80 GPU", "2x1k80"]
        - ["2 cores, 1 hour, RTX8000 GPU", "2x1rtx"]
@@ -16,17 +14,9 @@ attributes:
        - ["2 cores, 12 hours, RTX8000 GPU", "2x12rtx"]
        - ["4 cores, 4 hours, K80 GPU", "4x4k80"]
        - ["4 cores, 4 hours, RTX8000 GPU", "4x4rtx"]
-#       - ["4 cores, 12 hours, No GPU (Alpine)", "4x12alpineng"]
-#       - ["4 cores, 12 hours, A100 (Alpine GPU)", "4x12alpinegpu"]
 
 form:
   - bc_vnc_idle
   - desktop
-#  - bc_account
   - configuration
-#  - bc_num_hours
-#  - bc_num_slots
-#  - node_type
-#  - bc_queue
   - bc_vnc_resolution
-#  - bc_email_on_started

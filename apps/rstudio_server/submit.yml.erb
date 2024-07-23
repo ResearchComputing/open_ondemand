@@ -1,18 +1,59 @@
 <%-
-#  cpus = bih_cpus.to_i
-  mem = bih_mem.to_i
+
+  # Initialize an empty array to hold Slurm arguments
+  base_slurm_args = []
+
+  # fill Slurm array based on config_type
+  if config_type == "presets"
+
+    # set shared Slurm directives 
+    base_slurm_args += ["--nodes=1", "--partition=ahub", "--qos=interactive", "--reservation=ahub2"]
+
+    case preset_configuration
+      # set tasks and time based on provided selection 
+      when "1x12alpine"
+        base_slurm_args += ["--ntasks=1", "--time=12:00:00"]
+      when "4x4alpine"
+        base_slurm_args += ["--ntasks=4", "--time=4:00:00"]
+      else
+	base_slurm_args
+      end
+
+  end
+
 -%>
 ---
-batch_connect:
-  template: "basic"
+
+<% if config_type == "presets" -%>
+
+# if presets set cluster to Alpine and use base_slurm_args to set Slurm directives 
+cluster: "alpine"
 script:
   native:
-    - "-n<%= bih_cpus %>"
-    - "--mem"
-    - "<%= mem * 1024 %>"
-    - "--partition"
-    - "<%= bih_partition %>"
-    - "--account=<%= bc_account %>"
-    - "-N1"
-    - "-t<%= bc_num_hours %>:00:00"
-    - "-q<%= qos_name %>"
+    <% base_slurm_args.each do |arg| %>
+      - <%= arg %>
+    <% end %>
+
+<% else -%>
+
+# set Slurm directives based on provided custom configurations 
+script:
+  native:
+    - "--nodes=1"
+    - "--ntasks=<%= num_cores %>"
+    - "--account=<%= account %>"
+    - "--partition=<%= partition_name %>"
+    - "--qos=<%= qos_name %>"
+    - "--time=<%= num_hours %>:00:00"
+    <% if reservation.downcase != "none" %>
+    - "--reservation=<%= reservation %>"
+    <% end %>
+    <% if gres.downcase != "none" %>
+    - "--gres=<%= gres %>"
+    <% end %>
+
+<% end -%>
+
+batch_connect:
+  template: "basic"
+

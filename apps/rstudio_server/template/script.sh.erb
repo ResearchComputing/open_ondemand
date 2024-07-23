@@ -10,24 +10,9 @@ working_dir_host = '${PWD}'
 working_dir_container = working_dir_host
 %>
 
-#
 # Start RStudio Server
-#
-#export USERNAME=$USER
-
-# PAM auth helper used by RStudio
-#export RSTUDIO_AUTH=$(readlink -f "<%= working_dir_container %>/bin/auth")
-#echo $RSTUDIO_AUTH
 
 source "<%= working_dir_container %>/.env"
-
-<% if context.r_provider == "miniconda" %>
-source <%= context.miniconda_path.split(":")[0] %>/activate
-<% if context.miniconda_path.include? ":" %>
-conda activate <%= context.miniconda_path.split(":")[1] %>
-<% end %>
-export RSTUDIO_WHICH_R=$(which R)
-<% end %>
 
 # Generate an `rsession` wrapper script
 export RSESSION_WRAPPER_FILE="<%= working_dir_container %>/rsession.sh"

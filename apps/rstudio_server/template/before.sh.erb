@@ -26,7 +26,7 @@ else
 	export APPTAINER_TMPDIR=/projects/$USER/.rstudioserver
 	export APPTAINER_CACHEDIR=/projects/$USER/.rstudioserver
 
-	export RSTUDIO_SERVER_IMAGE=/curc/sw/containers/open_ondemand/<%= context.singularity_image %>
+	export RSTUDIO_SERVER_IMAGE=/curc/sw/containers/open_ondemand/<%= context.apptainer_image %>
 
 	# create overlay if it doesn't exist and add it to the user's projects directory
 	if ! test -f "/projects/$USER/.rstudioserver/rstudio-server-4.2.2_overlay.img"; then
@@ -40,7 +40,7 @@ else
 
 fi
 
-export RSTUDIO_SERVER_IMAGE=/curc/sw/containers/open_ondemand/<%= context.singularity_image %>
+export RSTUDIO_SERVER_IMAGE=/curc/sw/containers/open_ondemand/<%= context.apptainer_image %>
 
 # Define a password and export it for RStudio authentication
 #password="$(create_passwd 16)"
