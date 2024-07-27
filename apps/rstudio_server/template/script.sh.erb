@@ -77,11 +77,7 @@ printf 'provider=sqlite\ndirectory=/var/lib/rstudio-server\n' > /projects/$USER/
 
 echo $CLUSTER_NAME
 
-# all singularity binds for the container 
-if [[ "${CLUSTER_NAME}" == "blanca" ]]; then
-	BINDS=/pl/active,/projects/$USER,/rc_scratch/$USER,/projects/$USER/.rstudioserver/run:/run,/projects/$USER/.rstudioserver/var-lib-rstudio-server:/var/lib/rstudio-server,/projects/$USER/.rstudioserver/database.conf:/etc/rstudio/database.conf,/curc/sw/containers/open_ondemand,/curc/sw/anaconda3,/curc/sw/anaconda,/curc/sw/anaconda2,/curc/sw/mambaforge-pypy3
-	singularity exec --bind $BINDS $RSTUDIO_SERVER_IMAGE $RSERVER --www-port="${port}" --auth-none=1 --server-user=$USER
-else
-	BINDS=/projects/$USER,/pl/active,/scratch/alpine/$USER,/projects/$USER/.rstudioserver/run:/run,/projects/$USER/.rstudioserver/var-lib-rstudio-server:/var/lib/rstudio-server,/projects/$USER/.rstudioserver/database.conf:/etc/rstudio/database.conf,/curc/sw/containers/open_ondemand,/curc/sw/anaconda3,/curc/sw/anaconda,/curc/sw/anaconda2,/curc/sw/mambaforge-pypy3
-	apptainer exec --bind $BINDS --userns --overlay $APPTAINER_OVERLAY:ro $RSTUDIO_SERVER_IMAGE $RSERVER --www-port="${port}" --auth-none=1 --server-user=$USER
-fi
+# all Apptainer binds for the container 
+BINDS=/projects/$USER,/pl/active,$SCRATCHDIR/$USER,/projects/$USER/.rstudioserver/run:/run,/projects/$USER/.rstudioserver/var-lib-rstudio-server:/var/lib/rstudio-server,/projects/$USER/.rstudioserver/database.conf:/etc/rstudio/database.conf,/curc/sw/containers/open_ondemand,/curc/sw/anaconda3,/curc/sw/anaconda,/curc/sw/anaconda2,/curc/sw/mambaforge-pypy3
+apptainer exec --bind $BINDS --userns --overlay $APPTAINER_OVERLAY:ro $RSTUDIO_SERVER_IMAGE $RSERVER --www-port="${port}" --auth-none=1 --server-user=$USER
+
