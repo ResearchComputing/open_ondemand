@@ -1,0 +1,8 @@
+---
+name: ICS Desktop
+icon: fa://desktop
+category: Interactive Apps
+subcategory: Desktops
+role: batch_connect
+description: |
+      This is a custom application to launch an interactive desktop on blogin-ics2.
