@@ -4,8 +4,11 @@ category: Interactive Apps
 subcategory: GUIs
 role: batch_connect
 description: |
-  This app will launch a MATLAB GUI on a CURC node. You will be
-  able to interact with MATLAB through a VNC session. <mark style="background-color: #FFF36D"> 
+  This app will launch a MATLAB GUI on a visualization node. You will be
+  able to interact with MATLAB through a VNC session. For more information 
+  on this application, please see our [MATLAB GUI](https://curc.readthedocs.io/en/latest/open_ondemand/matlab.html) documentation. 
+  
+  <mark style="background-color: #FFF36D"> 
   GPU based options are not meant for computationally intensive workflows. Additionally, 
   please keep in mind that these GPU based options are a shared 
   resource amongst all users. Thus, significant computation by one 
