@@ -1,0 +1,13 @@
+---
+cluster: blanca
+script:
+  native:
+    - "-n"
+    - "<%= num_cores.blank? ? 1 : num_cores.to_i %>"
+    - "-N 1"
+    - "--qos=blanca-ics"
+    - "--mem-per-cpu=4G"
+batch_connect:
+  template: vnc
+  set_host: "host=$(hostname)"
+

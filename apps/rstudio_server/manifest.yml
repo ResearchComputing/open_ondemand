@@ -1,12 +1,26 @@
 ---
-name: RStudio Server (Custom)
+name: RStudio Server
 category: Interactive Apps
 subcategory: Servers
 role: batch_connect
 description: |
-  This app will launch [RStudio Server](https://rstudio.com), an IDE for [R](https://www.r-project.org) on Alpine.
+  This app will launch [RStudio Server](https://rstudio.com), an IDE for [R](https://www.r-project.org) 
+  on Alpine.
 
-  <mark style="background-color: #FFF36D"> Before utilizing this application, please see the [RStudio section of the CURC documentation](https://curc.readthedocs.io/en/latest/gateways/OnDemand.html#rstudio). This documentation includes important information regarding quitting an RStudio session. For more information on installing dependencies required by R packages, please see the [Installing dependencies for RStudio](https://curc.readthedocs.io/en/latest/gateways/OnDemand.html#installing-dependencies-for-rstudio-currently-available-only-on-alpine) section in our documentation. </mark>
+  <mark style="background-color: #FFF36D"> 
+  Before utilizing this application, please see the [RStudio Server](https://curc.readthedocs.io/en/latest/open_ondemand/rstudio.html)
+  and [Configuring Open OnDemand interactive applications](https://curc.readthedocs.io/en/latest/open_ondemand/configuring_apps.html) 
+  sections in our documentation. This documentation includes important information regarding quitting an 
+  RStudio session. For more information on installing dependencies required by R packages, 
+  please see the [Installing dependencies for RStudio Server](https://curc.readthedocs.io/en/latest/open_ondemand/rstudio.html#installing-dependencies-for-rstudio-server) 
+  section in our documentation. 
+  </mark>
 
-  <mark style="background-color: #FF5631"> Please note that the first time you launch RStudio it may take 15 minutes or more to create a [persistent overlay]( https://apptainer.org/docs/user/main/persistent_overlays.html), if 1 core is used. For this reason, we recommend using 4 cores or more during your first launch of an RStudio session.  Subsequent sessions will not require the creation of the persistent overlay; therefore 1 core may be sufficient. </mark>
+  <mark style="background-color: #f59b42"> 
+  Please note that the first time you launch RStudio it may take 15 minutes or more to create a 
+  [persistent overlay]( https://apptainer.org/docs/user/main/persistent_overlays.html), if 1 core 
+  is used. For this reason, we recommend using 4 cores or more during your first launch of an 
+  RStudio session. Subsequent sessions will not require the creation of the persistent overlay; 
+  therefore 1 core may be sufficient. 
+  </mark>
 
