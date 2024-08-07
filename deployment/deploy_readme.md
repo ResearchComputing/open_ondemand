@@ -36,8 +36,13 @@ The following steps should be performed:
 1. Go to the directory `/curc/admin/ood/development` and switch to the branch you want to use.
 2. Make sure the branch you switched to is up-to-date e.g. do `git pull`, if 
 necessary. 
-3. Jump onto `ondemand-dev`
-4. Run the deploy script for the development server:
+3. Make sure the ICS Core Desktop application has the appropriate permissions:
+```
+sudo chgrp -R icsgrp /curc/admin/ood/development/apps/ics_desktop
+sudo chmod -R o-r /curc/admin/ood/development/apps/ics_desktop
+```
+4. Jump onto `ondemand-dev`
+5. Run the deploy script for the development server:
 ```
 ./deploy_development.sh 
 ```

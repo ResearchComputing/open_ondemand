@@ -4,4 +4,10 @@ category: Interactive Apps
 subcategory: Servers
 role: batch_connect
 description: |
-  This app will launch a Jupyter Notebook or JupyterLab session. <mark style="background-color: #FFF36D"> For more information on possible settings for this application, see [Running Custom Interactive applications](https://curc.readthedocs.io/en/latest/gateways/OnDemand.html#running-custom-interactive-applications) in our documentation. </mark> 
+  This app will launch a Jupyter Notebook or JupyterLab session.
+  
+  <mark style="background-color: #FFF36D"> 
+  For more information on possible settings for 
+  this application, see our [Jupyter Session](https://curc.readthedocs.io/en/latest/open_ondemand/jupyter_session.html) and [Configuring Open OnDemand interactive applications](https://curc.readthedocs.io/en/latest/open_ondemand/configuring_apps.html) 
+  sections in our documentation. 
+  </mark> 
