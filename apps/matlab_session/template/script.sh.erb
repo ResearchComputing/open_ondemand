@@ -22,12 +22,11 @@ set -x
 # Turn off screensaver (this may not exist at all)
 gsettings set org.mate.screensaver idle-activation-enabled false
 
-# Disable useless services on autostart
-AUTOSTART="${HOME}/.config/autostart"
-rm -fr "${AUTOSTART}"    # clean up previous autostarts
+# remove autostart MATLAB file
+rm ~/.config/autostart/matlab.desktop
 
 # create autostart directory
-mkdir -p "${AUTOSTART}"
+mkdir -p ~/.config/autostart
 
 # create autostart file for matlab
 export MATLABEXEC=$(which matlab)
