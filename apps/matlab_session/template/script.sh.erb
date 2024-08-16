@@ -3,39 +3,11 @@
 # Clean the environment
 module purge
 
-# Work around spam message about dconf write permissions
-#export XDG_RUNTIME_DIR="/tmp/${UID}"
-#unsetenv XDG_RUNTIME_DIR
-
 # Set working directory to home directory
 cd "${HOME}"
 
-#
-# Launch Xfce Window Manager and Panel
-#
-
-#(
-#  export SEND_256_COLORS_TO_REMOTE=1
-#  export XDG_CONFIG_HOME="<%= session.staged_root.join("config") %>"
-#  export XDG_DATA_HOME="<%= session.staged_root.join("share") %>"
-#  export XDG_CACHE_HOME="$(mktemp -d)"
-#  module restore
-#  # set -x
-#  xfwm4 --compositor=off --daemon --sm-client-disable
-#  xsetroot -solid "#D3D3D3"
-#  xfsettingsd --sm-client-disable
-#  xfce4-panel --sm-client-disable
-#) &
-#
-# Start MATLAB
-#
-# Load the required environment
-#module load matlab/R2021b
-
-
 # defines the Matlab version that is locally installed on Viz and core-gpu
 local_matlab="matlab/R2021b"
-
 
 # loads a module if the locally installed Matlab is not chosen
 if [[ "<%= context.version %>" != "$local_matlab" ]]
@@ -43,14 +15,21 @@ then
    module load <%= context.version %>
 fi
 
-
 # Launch MATLAB
 module list
 set -x
-#export LD_PRELOAD="/usr/lib64/libGL.so"
-#vglrun matlab -desktop -nosoftwareopengl
 
-mkdir -p ~/.config/autostart
+# Turn off screensaver (this may not exist at all)
+gsettings set org.mate.screensaver idle-activation-enabled false
+
+# Disable useless services on autostart
+AUTOSTART="${HOME}/.config/autostart"
+rm -fr "${AUTOSTART}"    # clean up previous autostarts
+
+# create autostart directory
+mkdir -p "${AUTOSTART}"
+
+# create autostart file for matlab
 export MATLABEXEC=$(which matlab)
 echo "[Desktop Entry]" > ~/.config/autostart/matlab.desktop
 echo "Name=MATLAB" >> ~/.config/autostart/matlab.desktop
@@ -58,7 +37,12 @@ echo -n "Exec=" >> ~/.config/autostart/matlab.desktop
 echo -n $MATLABEXEC >> ~/.config/autostart/matlab.desktop
 echo " -desktop" >> ~/.config/autostart/matlab.desktop
 echo "Type=Application" >> ~/.config/autostart/matlab.desktop
+
+# make autostart matlab file executable
 chmod +x ~/.config/autostart/matlab.desktop
+
 sleep 3
+
 mate-session
+
 rm ~/.config/autostart/matlab.desktop
