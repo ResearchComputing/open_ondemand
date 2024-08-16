@@ -1,0 +1,52 @@
+form:
+  - bc_vnc_idle
+  - desktop
+  - config_type
+  - preset_configuration
+  - gpu_type
+  - num_hours
+  - num_cores
+  - bc_vnc_resolution
+
+attributes:
+  desktop: "mate"
+  bc_vnc_idle: 0
+  bc_vnc_resolution:
+    required: true
+  node_type: null
+  preset_configuration:
+     widget: select
+     label: "Preset configuration"
+     options:
+       - ["2 cores, 1 hour, K80 GPU", "2x1k80"]
+       - ["2 cores, 1 hour, RTX8000 GPU", "2x1rtx"]
+       - ["2 cores, 12 hours, K80 GPU", "2x12k80"]
+       - ["2 cores, 12 hours, RTX8000 GPU", "2x12rtx"]
+       - ["4 cores, 4 hours, K80 GPU", "4x4k80"]
+       - ["4 cores, 4 hours, RTX8000 GPU", "4x4rtx"]
+  num_cores:
+     widget: "number_field"
+     label: "Number of cores"
+     value: 1
+     min: 1
+     max: 16
+     step: 1  
+  num_hours:
+     widget: "number_field"
+     label: "Time"
+     value: 1
+     min: 1
+     max: 24    
+  gpu_type:
+     widget: select
+     label: "GPU"
+     options:
+       - ['K80', 'k80']
+       - ['RTX8000', 'rtx8000']
+  config_type:
+     widget: select
+     label: Configuration type
+     options:
+       - ['Preset configuration', 'presets', data-hide-num-cores: true, data-hide-num-hours: true, data-hide-gpu-type: true]
+       - ['Custom configuration', 'custom', data-hide-preset-configuration: true]
+     cacheable: false
