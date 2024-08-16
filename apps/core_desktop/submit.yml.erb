@@ -61,7 +61,7 @@ script:
     <% end %>
     <% if gpu_type == "rtx8000" %>
     - "--partition=viz"
-    - "--mem-per-cpu=8G"
+    - "--mem-per-cpu=4G"
     <% end %>
 
 <% end -%>
