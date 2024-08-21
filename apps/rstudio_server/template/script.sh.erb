@@ -1,24 +1,29 @@
 #!/usr/bin/env bash
 
-# kill off old db since changing versions will not work otherwise
-rm -f /projects/$USER/.rstudioserver/var-lib-rstudio-server/rstudio-os.sqlite
+working_dir=/projects/$USER/.rstudioserver/rstudio-<%= context.r_version %>
+
+# set environment variables so rstudio doesn't write to home directory
+export XDG_STATE_HOME=$working_dir/state
+export XDG_CONFIG_HOME=$working_dir/config
+export XDG_CACHE_HOME=$working_dir/cache
+export XDG_DATA_HOME=$working_dir/share
+
+# ensure that all XDG set directories exist
+mkdir -p $XDG_STATE_HOME $XDG_CONFIG_HOME $XDG_CACHE_HOME $XDG_DATA_HOME
+
+# Set working directory
+cd $working_dir
 
 set -x
 
-<%-
-working_dir_host = '${PWD}'
-working_dir_container = working_dir_host
-%>
-
 # Start RStudio Server
-
-source "<%= working_dir_container %>/.env"
+source "$working_dir/.env"
 
 # Generate an `rsession` wrapper script
-export RSESSION_WRAPPER_FILE="<%= working_dir_container %>/rsession.sh"
+export RSESSION_WRAPPER_FILE="$working_dir/rsession.sh"
 (
 umask 077
-sed 's/^ \{2\}//' > "<%= working_dir_host %>/rsession.sh" << EOL
+sed 's/^ \{2\}//' > "$working_dir/rsession.sh" << EOL
   #!/usr/bin/env bash 
 
   set -x
@@ -29,7 +34,7 @@ sed 's/^ \{2\}//' > "<%= working_dir_host %>/rsession.sh" << EOL
   export LD_LIBRARY_PATH=/usr/lib64/:\$LD_LIBRARY_PATH
 
   # Log all output from this script
-  export RSESSION_LOG_FILE="<%= working_dir_container %>/rsession.log"
+  export RSESSION_LOG_FILE="$working_dir/rsession.log"
 
   exec &>>"\${RSESSION_LOG_FILE}"
 
@@ -39,10 +44,7 @@ sed 's/^ \{2\}//' > "<%= working_dir_host %>/rsession.sh" << EOL
   exec rsession $(if [[ ! -z "${R_LIBS_USER}" ]]; then echo --r-libs-user "${R_LIBS_USER}"; fi) "\${@}"
 EOL
 )
-chmod 700 "<%= working_dir_host %>/rsession.sh"
-
-# Set working directory to home directory
-cd "${HOME}"
+chmod 700 "$working_dir/rsession.sh"
 
 # Output debug info
 hostname
@@ -52,32 +54,18 @@ set -x
 echo "Starting up rserver..."
 
 # Dump environment without functions for use in rsession.sh, filtering readonly variables
-(set -o posix; set) | grep -vP '^(BASHOPTS|BASH_VERSINFO|EUID|PPID|SHELLOPTS|UID)' > "<%= working_dir_container %>/.env"
-
-SERVER_DATA_DIR=$(TMPDIR=/projects/$USER/.rstudioserver)
-mkdir -p ${SERVER_DATA_DIR}/var/{lib,run}
-chmod a+rw ${SERVER_DATA_DIR}/var/run
-chmod +t ${SERVER_DATA_DIR}/var/run
-
-# create an Rstudio directory that will be a symlink (contains all Rstudio configurations e.g. console history)
-mkdir /projects/$USER/.rstudioserver/rstudio
-# link created directory to path created by launching Rstudio
-ln -s /projects/$USER/.rstudioserver/rstudio /home/$USER/.local/share/rstudio
+(set -o posix; set) | grep -vP '^(BASHOPTS|BASH_VERSINFO|EUID|PPID|SHELLOPTS|UID)' > "$working_dir/.env"
 
 CLUSTER_USER=$(echo $USER | sed -e 's/@CHARITE/_c/' -e 's/@MDC-BERLIN/_m/')
 
 # path to rserver binary in the container
 export RSERVER=/usr/lib/rstudio-server/bin/rserver
 
-# make sure run and rstudio var lib directories are created
-mkdir -p /projects/$USER/.rstudioserver/run /projects/$USER/.rstudioserver/var-lib-rstudio-server
-
 # create a rstudioserver database.conf file
-printf 'provider=sqlite\ndirectory=/var/lib/rstudio-server\n' > /projects/$USER/.rstudioserver/database.conf
+printf 'provider=sqlite\ndirectory=/var/lib/rstudio-server\n' > /projects/$USER/.rstudioserver/rstudio-<%= context.r_version %>/database.conf
 
 echo $CLUSTER_NAME
 
 # all Apptainer binds for the container 
-BINDS=/projects/$USER,/pl/active,$SCRATCHDIR/$USER,/projects/$USER/.rstudioserver/run:/run,/projects/$USER/.rstudioserver/var-lib-rstudio-server:/var/lib/rstudio-server,/projects/$USER/.rstudioserver/database.conf:/etc/rstudio/database.conf,/curc/sw/containers/open_ondemand,/curc/sw/anaconda3,/curc/sw/anaconda,/curc/sw/anaconda2,/curc/sw/mambaforge-pypy3
+BINDS=/projects/$USER,/pl/active,$SCRATCHDIR/$USER,/projects/$USER/.rstudioserver/rstudio-<%= context.r_version %>/run:/run,/projects/$USER/.rstudioserver/rstudio-<%= context.r_version %>/var-lib-rstudio-server:/var/lib/rstudio-server,/projects/$USER/.rstudioserver/rstudio-<%= context.r_version %>/database.conf:/etc/rstudio/database.conf,/curc/sw/containers/open_ondemand,/curc/sw/anaconda3,/curc/sw/anaconda,/curc/sw/anaconda2,/curc/sw/mambaforge-pypy3
 apptainer exec --bind $BINDS --userns --overlay $APPTAINER_OVERLAY:ro $RSTUDIO_SERVER_IMAGE $RSERVER --www-port="${port}" --auth-none=1 --server-user=$USER
-
