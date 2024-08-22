@@ -1,0 +1,52 @@
+#!/bin/bash
+
+# Note: This script must be ran after /projects/$USER/.rstudioserver/rstudio-<%= context.r_version %> is created 
+
+# This is a script that cleans-up the old version of the RStudio directories. It completes the following actions:
+# 1. It checks to see if the directory "/home/<user>/.local/share/rstudio" exists 
+# 2. If it does, it deletes the directory 
+# 3. Then it removes the directory "/home/<user>/.cache/rstudio"
+# 4. Then it removes the directory "/home/<user>/.config/rstudio"
+# 5. It deletes all content in "/projects/<user>/.rstudioserver" except rstudio-server-4.2.2_overlay.img and "rstudio-*"
+# 6. It creates a symlink between /projects/<user>/.rstudioserver/rstudio-server-4.2.2_overlay.img and 
+#   /projects/<user>/.rstudioserver/rstudio-4.2.2/rstudio-server-4.2.2_overlay.img
+
+
+# Define RStudio directory names 
+RSTUDIO_SHARED="/home/$USER/.local/share/rstudio"
+RSTUDIO_CACHE="/home/$USER/.cache/rstudio"
+RSTUDIO_CONFIG="/home/$USER/.config/rstudio"
+RSTUDIO_SERVER_DIR="/projects/$USER/.rstudioserver"
+
+# Check if RSTUDIO_SHARED exists
+if [ -d "$RSTUDIO_SHARED" ]; then
+
+    # Remove RStudio shared directory
+    rm -rf "$RSTUDIO_SHARED"
+
+    # Remove RStudio cache directory
+    rm -rf "$RSTUDIO_CACHE"
+
+    # Remove RStudio config directory
+    rm -rf "$RSTUDIO_CONFIG"
+
+    # Clean up the content in RStudio Server directory except specific files
+    if [ -d "$RSTUDIO_SERVER_DIR" ]; then
+
+        # remove database.conf, rsession.sh, rstudio, Rtmp*, run, var-lib-rstudio-server (created by old session)
+        rm -f $RSTUDIO_SERVER_DIR/database.conf
+        rm -f $RSTUDIO_SERVER_DIR/rsession.sh
+        rm -rf $RSTUDIO_SERVER_DIR/rstudio
+        rm -rf $RSTUDIO_SERVER_DIR/Rtmp*
+        rm -rf $RSTUDIO_SERVER_DIR/run
+        rm -rf $RSTUDIO_SERVER_DIR/var-lib-rstudio-server
+
+        # create symbolic link to the overlay image (so we don't delete overlays people have modified already)
+        ln -s $RSTUDIO_SERVER_DIR/rstudio-<%= context.r_version %>/rstudio-server-4.2.2_overlay.img "$RSTUDIO_SERVER_DIR/rstudio-server-4.2.2_overlay.img"
+        
+fi
+
+
+    fi 
+
+fi
