@@ -16,9 +16,6 @@ cd $working_dir
 
 set -x
 
-# Start RStudio Server
-source "$working_dir/.env"
-
 # Generate an `rsession` wrapper script
 export RSESSION_WRAPPER_FILE="$working_dir/rsession.sh"
 (
@@ -52,9 +49,6 @@ hostname
 set -x
 # Launch the RStudio Server
 echo "Starting up rserver..."
-
-# Dump environment without functions for use in rsession.sh, filtering readonly variables
-# (set -o posix; set) | grep -vP '^(BASHOPTS|BASH_VERSINFO|EUID|PPID|SHELLOPTS|UID)' > "$working_dir/.env"
 
 CLUSTER_USER=$(echo $USER | sed -e 's/@CHARITE/_c/' -e 's/@MDC-BERLIN/_m/')
 

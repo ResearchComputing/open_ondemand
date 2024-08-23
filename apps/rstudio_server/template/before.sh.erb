@@ -6,15 +6,16 @@ port=$(find_port ${host})
 # make directory that will hold all RStudio content
 mkdir -p /projects/$USER/.rstudioserver/rstudio-<%= context.r_version %>
 
-# create an Rstudio directory that will be a symlink (contains all Rstudio configurations e.g. console history)
-# mkdir -p /projects/$USER/.rstudioserver/rstudio-<%= context.r_version %>
+# run cleanup script, which removes older directories associated with a previous version of RStudio and creates an overlay
+# IMPORTANT: this script must be ran before you set TMPDIR or overlays will not be editible 
+source ./cleanup.sh
 
-# link created directory to path created by launching Rstudio
-# ln -s /projects/$USER/.rstudioserver/rstudio /home/$USER/.local/share/rstudio
+# set temp directory
+export TMPDIR=/projects/$USER/.rstudioserver/rstudio-<%= context.r_version %>/tmp_data
+mkdir -p $TMPDIR
 
 # create directories /var/lib and /var/run directories that will be used by rstudio server
-TMPDIR=/projects/$USER/.rstudioserver/rstudio-<%= context.r_version %>
-SERVER_DATA_DIR=TMPDIR
+SERVER_DATA_DIR=/projects/$USER/.rstudioserver/rstudio-<%= context.r_version %>
 mkdir -p ${SERVER_DATA_DIR}/var/{lib,run}
 chmod a+rw ${SERVER_DATA_DIR}/var/run
 chmod +t ${SERVER_DATA_DIR}/var/run
@@ -25,9 +26,6 @@ mkdir -p /projects/$USER/.rstudioserver/rstudio-<%= context.r_version %>/run /pr
 # kill off old db since changing versions will not work otherwise
 rm -f /projects/$USER/.rstudioserver/rstudio-<%= context.r_version %>/var-lib-rstudio-server/rstudio-os.sqlite
 
-# TODO: symlink to /projects/<user>/.rstudioserver/rstudio-server-4.2.2_overlay.img
-# TODO: create clean-up script that removes old setup for RStudio
-
 # create Apptainer as symlink so we can use them
 if [[ ! -e ~/.apptainer ]]; then
 	mkdir -p ~/work/..apptainer
@@ -37,15 +35,6 @@ fi
 # export environment variables for Apptainer items 
 export APPTAINER_TMPDIR=/projects/$USER/.rstudioserver/rstudio-<%= context.r_version %>
 export APPTAINER_CACHEDIR=/projects/$USER/.rstudioserver/rstudio-<%= context.r_version %>
-
-# create overlay if it doesn't exist and add it to the user's projects directory
-if ! test -f "/projects/$USER/.rstudioserver/rstudio-<%= context.r_version %>/rstudio-server-<%= context.r_version %>_overlay.img"; then
-
-	cd /projects/$USER/.rstudioserver/rstudio-<%= context.r_version %>
-	# apptainer overlay create --fakeroot --sparse --size 100000 rstudio-server-<%= context.r_version %>_overlay.img
-    apptainer overlay create --fakeroot --sparse --size 25000 rstudio-server-<%= context.r_version %>_overlay.img
-
-fi
 
 # set environment variable for overlay and image so they can be used later
 export APPTAINER_OVERLAY=/projects/$USER/.rstudioserver/rstudio-<%= context.r_version %>/rstudio-server-<%= context.r_version %>_overlay.img
