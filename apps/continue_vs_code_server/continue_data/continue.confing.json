@@ -1,0 +1,36 @@
+{
+  "models": [
+    {
+      "model": "deepseek-coder-v2:16b",
+      "title": "DeepSeek Coder V2 (16b)",
+      "apiBase": "http://localhost:9999",
+      "provider": "ollama"
+    },
+    {
+      "model": "llama3.1:8b",
+      "title": "llama3.1 (8b)",
+      "apiBase": "http://localhost:9999",
+      "provider": "ollama"
+    }
+  ],
+  "customCommands": [
+    {
+      "name": "test",
+      "prompt": "{{{ input }}}\n\nWrite a comprehensive set of unit tests for the selected code. It should setup, run tests that check for correctness including important edge cases, and teardown. Ensure that the tests are complete and sophisticated. Give the tests just as chat output, don't edit any file.",
+      "description": "Write unit tests for highlighted code"
+    }
+  ],
+  "allowAnonymousTelemetry": false, 
+  "disableIndexing": true,
+  "tabAutocompleteModel": {
+    "title": "Tab Autocomplete Model",
+    "provider": "ollama",
+    "model": "starcoder2:3b",
+    "apiBase": "http://localhost:9999"
+  },
+  "tabAutocompleteOptions": {
+    "useCopyBuffer": false,
+    "maxPromptTokens": 400,
+    "prefixPercentage": 0.5
+  }
+}

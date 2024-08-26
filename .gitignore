@@ -1,5 +1,10 @@
 cspell.json 
 
+# ignore continue VS code application data (it is too large to put on GH)
+apps/continue_vs_code_server/continue_data/continue.continue-0.9.174
+apps/continue_vs_code_server/continue_data/Continue.continue-0.9.174@linux-x64.vsix
+apps/continue_vs_code_server/continue_data/.continue
+
 # DS store created on a mac
 .DS_Store
 ._.DS_Store

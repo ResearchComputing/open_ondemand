@@ -1,0 +1,123 @@
+#!/usr/bin/bash -l
+
+# specify ollama and code server versions to be used
+export code_server_version="<%= context.codeserverversion %>"
+export ollama_version="<%= context.ollamaversion %>"
+
+# specify where the code server extension data is stored
+export copied_files_dir="/curc/admin/ood/apps/dev/cu-continue-vs-presets"
+
+# specify where ollama is installed
+export ollama_install_path="/curc/sw/ollama"
+
+# add code-server to path 
+export PATH=$PATH:/curc/sw/install/vscode/${code_server_version}/code-server-${code_server_version}-linux-amd64/bin
+
+# add ollama to path
+export PATH=$PATH:${ollama_install_path}/${ollama_version}
+
+# directory where all code-server, ollama, and continue stuff will go
+export CODE_SERVER_DATAROOT="/projects/$USER/ollama-code-server"
+
+# creat the directory where all code server, ollama, and continue stuff will go
+mkdir -p $CODE_SERVER_DATAROOT
+
+# copy user's bashrc to what will be the home directory 
+cp ~/.bashrc $CODE_SERVER_DATAROOT/
+
+# copy user's .condarc to what will be the home directory
+if [ -f ~/.condarc ]; then
+    cp ~/.condarc $CODE_SERVER_DATAROOT/
+else
+    echo "~/.condarc does not exist."
+fi
+
+# change home directory so we know were everything is going 
+export HOME=$CODE_SERVER_DATAROOT
+
+# Set our working directory.
+export working_dir="/projects/$USER"
+
+# set ollama temp directory
+export OLLAMA_TMPDIR=/scratch/alpine/$USER/open_shared/ollama_temp
+
+# make directories just in case they do not exist
+mkdir -p $OLLAMA_TMPDIR
+mkdir -p "$CODE_SERVER_DATAROOT/extensions"
+mkdir -p "$CODE_SERVER_DATAROOT/tmp"
+
+# set tmp directory to the code server directory 
+export TMPDIR=$CODE_SERVER_DATAROOT/tmp
+
+# expose the password to the server
+export PASSWORD="$password"
+
+# print compute node
+echo "$(date): Running on compute node ${compute_node}:$port"
+
+CPP_FILE=${working_dir}/code-server/.vscode/c_cpp_properties.json
+
+if [[ -f "$CPP_FILE" ]]; then
+    CPP_DIR="${TMPDIR:=$CODE_SERVER_DATAROOT/tmp/$USER}/cpp-vscode"
+    mkdir -p "$CPP_DIR"
+    chmod 700 "$CPP_DIR"
+
+    # if the file is empty, let's initialize it
+    [ -s "$CPP_FILE" ] || echo '{"configurations": [{ "name": "Linux", "browse": { "databaseFilename": null }}], "version": 4}' > "$CPP_FILE"
+
+    jq --arg dbfile "$CPP_DIR/cpp-vscode.db" \
+      '.configurations[0].browse.databaseFilename = $dbfile' \
+      "$CPP_FILE" > "$CPP_FILE".new
+
+    mv "$CPP_FILE".new "$CPP_FILE"
+  fi
+
+# specify modules and print loaded modules
+module purge
+module load git 
+module list 
+
+# change to projects directory so users do not fill up their home directory
+cd /projects/$USER
+
+# check to see if the Continue extension has been installed 
+# if it hasn't, install it, otherwise do nothing 
+codeservercheck="$CODE_SERVER_DATAROOT/extensions/continue.continue-0.9.174"
+if [ ! -d $codeservercheck ]; then
+
+  # print message for debugging purposes
+  echo "Output does not contain the word 'continue'. Copying appropriate items".
+
+  # add .continue directory that has appropriate configurations 
+  cp -r $copied_files_dir/continue_data/.continue $CODE_SERVER_DATAROOT/.continue
+
+  # add actual extension to user's directory
+  cp -r $copied_files_dir/continue_data/continue.continue-0.9.174 $CODE_SERVER_DATAROOT/extensions/continue.continue-0.9.174
+
+  # add configuration json with standard models 
+  cp $copied_files_dir/continue_data/continue.confing.json /projects/$USER/ollama-code-server/.continue/config.json
+
+  # create file that will hold the last host ip used (can be useful if you want to change host)
+  echo "localhost" > $CODE_SERVER_DATAROOT/.last_host_ip_used.txt
+
+else
+
+  # print message for debugging purposes
+  echo "Continue has already been installed, yay!"
+
+fi
+
+# replace last host ip used in config file with the specified host ip (done so our IP is not public knowledge)
+# this line allows us to connect to the ollama server running on a different host 
+old_statement=$(cat $CODE_SERVER_DATAROOT/.last_host_ip_used.txt)
+new_statement=$(cat $ollama_install_path/.ollama_host_ip.txt)
+file_to_replace="/projects/$USER/ollama-code-server/.continue/config.json"
+sed -i "s/$old_statement/$new_statement/g" $file_to_replace
+
+# replace last host ip used value with the current host ip value (just in case it changes)
+echo "$new_statement" > $CODE_SERVER_DATAROOT/.last_host_ip_used.txt
+
+# Start Code Server.
+echo "$(date): Started code-server"
+echo ""
+code-server --auth=none --bind-addr="0.0.0.0:${port}" --disable-telemetry --user-data-dir="$CODE_SERVER_DATAROOT" --log=debug

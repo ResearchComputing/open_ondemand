@@ -1,0 +1,35 @@
+---
+name: Continue Code-Server
+category: Interactive Apps
+subcategory: Servers
+role: batch_connect
+description: |
+  [Continue] is a AI code assistant. It allows us to connect Large Language Models (LLMs) to our 
+  [Code-Server] session, which allows for custom autocomplete and chat experiences inside the 
+  [VS Code] IDE. To allow for easy integration of LLMs we host an [Ollama] server. This server 
+  currently has the following LLMs available:       
+
+  * [llama3] 8b model
+      * For conversational tasks 
+  * [deepseek-coder-v2] 16b model
+      * For code specific tasks
+  * [starcoder2] 3b model 
+      * For code completion  
+
+  <mark style="background-color: #FFF36D"> For more
+  information on installing VS Code extensions, please see our
+  [Installing VS Code-Server Extensions](https://curc.readthedocs.io/en/latest/gateways/OnDemand.html#installing-vs-code-server-extensions) section of the documentation. </mark>
+
+  <mark style="background-color: #F57600">
+  By using this application you agree to the terms and conditions outlined in our 
+  AI policy.  
+  </mark>
+
+
+  [VS Code]: https://code.visualstudio.com/
+  [Code-Server]: https://coder.com/docs/code-server/latest
+  [Continue]: https://www.continue.dev/
+  [Ollama]: https://ollama.com/
+  [llama3]: https://ollama.com/library/llama3
+  [deepseek-coder-v2]: https://ollama.com/library/deepseek-coder-v2
+  [starcoder2]: https://ollama.com/library/starcoder2
