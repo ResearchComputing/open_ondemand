@@ -2,16 +2,15 @@
 
 # Note: This script must be ran after /projects/$USER/.rstudioserver/rstudio-<%= context.r_version %> is created 
 
-# This is a script that cleans-up the old version of the RStudio directories. It completes the following actions:
+# This is a script that cleansup the old version of the RStudio directories. It completes the following actions:
 # 1. It checks to see if the directory "/home/<user>/.local/share/rstudio" exists 
 # 2. If it does, it deletes the directory 
 # 3. Then it removes the directory "/home/<user>/.cache/rstudio"
 # 4. Then it removes the directory "/home/<user>/.config/rstudio"
 # 5. It deletes all content in "/projects/<user>/.rstudioserver" except rstudio-server-4.2.2_overlay.img and "rstudio-*"
 # 6. It creates a symlink between /projects/<user>/.rstudioserver/rstudio-server-4.2.2_overlay.img and 
-#   /projects/<user>/.rstudioserver/rstudio-4.2.2/rstudio-server-4.2.2_overlay.img
-# 7. If no clean-up was necessary, check if overlay needs to be created. If it does, create it. 
-
+#   /projects/<user>/.rstudioserver/rstudio-4.2.2/rstudio-server-4.2.2_overlay.img if the old overlay exists. 
+# 7. If no cleanup was necessary, check if overlay needs to be created. 
 
 # Define RStudio directory names 
 RSTUDIO_SHARED="/home/$USER/.local/share/rstudio"
@@ -19,20 +18,38 @@ RSTUDIO_CACHE="/home/$USER/.cache/rstudio"
 RSTUDIO_CONFIG="/home/$USER/.config/rstudio"
 RSTUDIO_SERVER_DIR="/projects/$USER/.rstudioserver"
 
+# Creates overlay, if it needs to be created 
+create_overlay() {
 
-# Function to check if overlay needs to be created and creates it if necessary
-check_create_overlay() {
-
-    # create overlay if it doesn't exist and add it to the user's projects directory
-    if ! test -f "/projects/$USER/.rstudioserver/rstudio-<%= context.r_version %>/rstudio-server-<%= context.r_version %>_overlay.img"; then
+    if [ ! -f /projects/$USER/.rstudioserver/rstudio-<%= context.r_version %>/rstudio-server-<%= context.r_version %>_overlay.img ]; then
 
         # change to rstudio version directory
-	    cd /projects/$USER/.rstudioserver/rstudio-<%= context.r_version %>
+        cd /projects/$USER/.rstudioserver/rstudio-<%= context.r_version %>
 
         # create sparse overlay that has a max size of 25 GB 
         apptainer overlay create --fakeroot --sparse --size 25000 rstudio-server-<%= context.r_version %>_overlay.img
 
-    fi
+    fi 
+
+}
+
+# Checks if the overlay needs to be created, creates it if necessary, and symlinks 4.2.2 overlay it if it already exists 
+check_overlay() {
+
+    if [ <%= context.r_version %> == 4.2.2 ]; then
+
+        if [ -f "$RSTUDIO_SERVER_DIR/rstudio-server-4.2.2_overlay.img" ] && [ ! -L "$RSTUDIO_SERVER_DIR/rstudio-4.2.2/rstudio-server-4.2.2_overlay.img" ]; then
+
+            # symlink old overlay
+            ln -s $RSTUDIO_SERVER_DIR/rstudio-server-4.2.2_overlay.img $RSTUDIO_SERVER_DIR/rstudio-4.2.2/rstudio-server-4.2.2_overlay.img
+
+        else
+            create_overlay
+        fi
+    
+    else
+        create_overlay
+    fi 
 
 }
 
@@ -40,7 +57,7 @@ check_create_overlay() {
 # Check if RSTUDIO_SHARED exists
 if [ -d "$RSTUDIO_SHARED" ]; then
 
-    echo "Performing clean-up of user's RStudio directories"
+    echo "Performing cleanup of user's RStudio directories"
 
     # Remove RStudio shared directory
     rm -rf "$RSTUDIO_SHARED"
@@ -62,24 +79,16 @@ if [ -d "$RSTUDIO_SHARED" ]; then
         rm -rf $RSTUDIO_SERVER_DIR/run
         rm -rf $RSTUDIO_SERVER_DIR/var-lib-rstudio-server
 
-        if [ -f "$RSTUDIO_SERVER_DIR/rstudio-server-4.2.2_overlay.img" ]; then
-            
-            # link old overlay
-            ln -s $RSTUDIO_SERVER_DIR/rstudio-server-4.2.2_overlay.img $RSTUDIO_SERVER_DIR/rstudio-4.2.2/rstudio-server-4.2.2_overlay.img
+        echo "Checking if overlay needs to be created."
 
-        else 
+        check_overlay
 
-            # Call the check_create_overlay function to create the overlay if it doesn't exist
-            check_create_overlay
-            
-        fi
     fi
 
 else
 
     echo "Cleanup not neccessary, checking if overlay needs to be created."
 
-    # Call the check_create_overlay function to create the overlay if it doesn't exist
-    check_create_overlay
+    check_overlay
     
 fi
