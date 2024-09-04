@@ -15,12 +15,3 @@ description: |
   please see the [Installing dependencies for RStudio Server](https://curc.readthedocs.io/en/latest/open_ondemand/rstudio.html#installing-dependencies-for-rstudio-server) 
   section in our documentation. 
   </mark>
-
-  <mark style="background-color: #f59b42"> 
-  Please note that the first time you launch RStudio it may take 15 minutes or more to create a 
-  [persistent overlay]( https://apptainer.org/docs/user/main/persistent_overlays.html), if 1 core 
-  is used. For this reason, we recommend using 4 cores or more during your first launch of an 
-  RStudio session. Subsequent sessions will not require the creation of the persistent overlay; 
-  therefore 1 core may be sufficient. 
-  </mark>
-
