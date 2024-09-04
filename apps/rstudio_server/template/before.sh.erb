@@ -4,7 +4,27 @@ set -x
 port=$(find_port ${host})
 
 # make directory that will hold all RStudio content
-mkdir /projects/$USER/.rstudioserver
+mkdir -p /projects/$USER/.rstudioserver/rstudio-<%= context.r_version %>
+
+# run cleanup script, which removes older directories associated with a previous version of RStudio and creates an overlay
+# IMPORTANT: this script must be ran before you set TMPDIR or overlays will not be editible 
+source ./cleanup.sh
+
+# set temp directory
+export TMPDIR=/projects/$USER/.rstudioserver/rstudio-<%= context.r_version %>/tmp_data
+mkdir -p $TMPDIR
+
+# create directories /var/lib and /var/run directories that will be used by rstudio server
+SERVER_DATA_DIR=/projects/$USER/.rstudioserver/rstudio-<%= context.r_version %>
+mkdir -p ${SERVER_DATA_DIR}/var/{lib,run}
+chmod a+rw ${SERVER_DATA_DIR}/var/run
+chmod +t ${SERVER_DATA_DIR}/var/run
+
+# make sure run and rstudio var lib directories are created
+mkdir -p /projects/$USER/.rstudioserver/rstudio-<%= context.r_version %>/run /projects/$USER/.rstudioserver/rstudio-<%= context.r_version %>/var-lib-rstudio-server
+
+# kill off old db since changing versions will not work otherwise
+rm -f /projects/$USER/.rstudioserver/rstudio-<%= context.r_version %>/var-lib-rstudio-server/rstudio-os.sqlite
 
 # create Apptainer as symlink so we can use them
 if [[ ! -e ~/.apptainer ]]; then
@@ -13,21 +33,12 @@ if [[ ! -e ~/.apptainer ]]; then
 fi
 
 # export environment variables for Apptainer items 
-export APPTAINER_TMPDIR=/projects/$USER/.rstudioserver
-export APPTAINER_CACHEDIR=/projects/$USER/.rstudioserver
-export RSTUDIO_SERVER_IMAGE=/curc/sw/containers/open_ondemand/<%= context.apptainer_image %>
-
-# create overlay if it doesn't exist and add it to the user's projects directory
-if ! test -f "/projects/$USER/.rstudioserver/rstudio-server-4.2.2_overlay.img"; then
-
-	cd /projects/$USER/.rstudioserver
-	apptainer overlay create --fakeroot --sparse --size 100000 rstudio-server-4.2.2_overlay.img
-
-fi
+export APPTAINER_TMPDIR=/projects/$USER/.rstudioserver/rstudio-<%= context.r_version %>
+export APPTAINER_CACHEDIR=/projects/$USER/.rstudioserver/rstudio-<%= context.r_version %>
 
 # set environment variable for overlay and image so they can be used later
-export APPTAINER_OVERLAY=/projects/$USER/.rstudioserver/rstudio-server-4.2.2_overlay.img
-export RSTUDIO_SERVER_IMAGE=/curc/sw/containers/open_ondemand/<%= context.apptainer_image %>
+export APPTAINER_OVERLAY=/projects/$USER/.rstudioserver/rstudio-<%= context.r_version %>/rstudio-server-<%= context.r_version %>_overlay.img
+export RSTUDIO_SERVER_IMAGE=/curc/sw/containers/open_ondemand/rstudio-server-<%= context.r_version %>.sif
 
 <%-
   require 'securerandom'
