@@ -6,9 +6,41 @@ port=$(find_port ${host})
 # make directory that will hold all RStudio content
 mkdir -p /projects/$USER/.rstudioserver/rstudio-<%= context.r_version %>
 
-# run cleanup script, which removes older directories associated with a previous version of RStudio and creates an overlay
+# Run cleanup script, which removes older directories associated with a previous version of RStudio and creates an overlay
 # IMPORTANT: this script must be ran before you set TMPDIR or overlays will not be editible 
 source ./cleanup.sh
+
+# Set environment variable for overlay and image so they can be used later
+export APPTAINER_OVERLAY=/projects/$USER/.rstudioserver/rstudio-<%= context.r_version %>/rstudio-server-<%= context.r_version %>_overlay.img
+export RSTUDIO_SERVER_IMAGE=/curc/sw/containers/open_ondemand/rstudio-server-<%= context.r_version %>.sif
+
+# The following if statement makes the overlay group readable. This 
+# was requested by the AMC UST to help users debug overlays. 
+# Check if the overlay is a symlink
+if [ -L $APPTAINER_OVERLAY ]; then
+
+	# Get the target of the symlink
+	target_file=$(readlink $APPTAINER_OVERLAY)
+
+	# Get group readable bit for overlay 
+	group_read=$(stat -c "%A" $target_file | cut -c5)
+
+	# Make the overlay group readable, if it isn't 
+	if [ $group_read != "r" ]; then
+		chmod g+r $target_file
+	fi
+
+else 
+
+	# Get group readable bit for overlay                                                 
+        group_read=$(stat -c "%A" $APPTAINER_OVERLAY | cut -c5)
+
+	# Make the overlay group readable, if it isn't 
+        if [ $group_read != "r" ]; then
+                chmod g+r $APPTAINER_OVERLAY
+        fi
+
+fi  
 
 # set temp directory
 export TMPDIR=/projects/$USER/.rstudioserver/rstudio-<%= context.r_version %>/tmp_data
@@ -35,10 +67,6 @@ fi
 # export environment variables for Apptainer items 
 export APPTAINER_TMPDIR=/projects/$USER/.rstudioserver/rstudio-<%= context.r_version %>
 export APPTAINER_CACHEDIR=/projects/$USER/.rstudioserver/rstudio-<%= context.r_version %>
-
-# set environment variable for overlay and image so they can be used later
-export APPTAINER_OVERLAY=/projects/$USER/.rstudioserver/rstudio-<%= context.r_version %>/rstudio-server-<%= context.r_version %>_overlay.img
-export RSTUDIO_SERVER_IMAGE=/curc/sw/containers/open_ondemand/rstudio-server-<%= context.r_version %>.sif
 
 <%-
   require 'securerandom'
