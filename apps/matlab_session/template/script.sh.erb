@@ -15,6 +15,9 @@ then
    module load <%= context.version %>
 fi
 
+# Allows us to use sinteractive and submit jobs to Alpine and Blanca 
+export PATH=$PATH:/usr/local/bin
+
 # Launch MATLAB
 module list
 set -x
