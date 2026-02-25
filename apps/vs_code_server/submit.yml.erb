@@ -7,7 +7,7 @@
   if config_type == "presets"
 
     # set shared Slurm directives 
-    base_slurm_args += ["--nodes=1", "--partition=ahub", "--qos=interactive", "--reservation=ahub2"]
+    base_slurm_args += ["--nodes=1", "--partition=ahub", "--qos=interactive", "--reservation=ahub"]
 
     case preset_configuration
       # set tasks and time based on provided selection 
