@@ -11,6 +11,7 @@ form:
   - reservation
   - gres
   - nodelist
+  - constraint
 
 attributes:
   preset_configuration:
@@ -59,16 +60,20 @@ attributes:
      value: None
   gres:
      widget: text_field
-     label: gres options (default is None)
+     label: gres (default is None)
      value: None
   nodelist:
      widget: text_field
-     label: nodelist option (default is None)
+     label: nodelist (default is None)
+     value: None 
+  constraint:
+     widget: text_field
+     label: constraint (default is None)
      value: None 
   config_type:
      widget: select
      label: Configuration type
      options:
-       - ['Preset configuration', 'presets', data-hide-cluster: true, data-hide-num-cores: true, data-hide-account: true, data-hide-partition-name: true, data-hide-num-hours: true, data-hide-qos-name: true,  data-hide-reservation: true,  data-hide-gres: true, data-hide-nodelist: true]
+       - ['Preset configuration', 'presets', data-hide-cluster: true, data-hide-num-cores: true, data-hide-account: true, data-hide-partition-name: true, data-hide-num-hours: true, data-hide-qos-name: true,  data-hide-reservation: true,  data-hide-gres: true, data-hide-nodelist: true, data-hide-constraint: true]
        - ['Custom configuration', 'custom', data-hide-preset-configuration: true]
      cacheable: false

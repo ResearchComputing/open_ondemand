@@ -56,6 +56,9 @@ script:
     <% if nodelist.downcase != "none" %>
     - "--nodelist=<%= nodelist %>"
     <% end %>
+    <% if constraint.downcase != "none" %>
+    - "--constraint=<%= constraint %>"
+    <% end %>
 
 <% end -%>
 
