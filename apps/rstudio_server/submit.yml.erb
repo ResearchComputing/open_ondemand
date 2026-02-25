@@ -51,6 +51,9 @@ script:
     <% if gres.downcase != "none" %>
     - "--gres=<%= gres %>"
     <% end %>
+    <% if nodelist.downcase != "none" %>
+    - "--nodelist=<%= nodelist %>"
+    <% end %>
 
 <% end -%>
 

@@ -10,6 +10,7 @@ form:
   - num_cores
   - reservation
   - gres
+  - nodelist
 
 attributes:
   preset_configuration:
@@ -60,6 +61,10 @@ attributes:
      widget: text_field
      label: gres options (default is None)
      value: None
+  nodelist:
+     widget: text_field
+     label: nodelist option (default is None)
+     value: None 
   config_type:
      widget: select
      label: Configuration type
