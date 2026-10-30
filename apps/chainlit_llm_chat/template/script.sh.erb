@@ -33,5 +33,4 @@ fi
 sleep 5
 
 cd "${CHAINLIT_APP_DIR}"
-#chainlit run --root-path /node/${host}/${port} --port $port --debug --host $(hostname -I) app.py
-chainlit run --root-path "/node/${host}/${port}" --port "${port}" --debug --host 0.0.0.0 app.py
+chainlit run --root-path "/node/${host}/${port}" --port "${port}" --debug --host "${host}" app.py
